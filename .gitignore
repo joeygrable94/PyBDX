@@ -1,6 +1,9 @@
 # secrets
 .env
 
+# data
+data/**
+
 # ignore pycache
 lib/__pycache__*
 __pycache__*

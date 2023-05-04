@@ -28,7 +28,63 @@ six = "^1.16.0"
 soupsieve = "^2.4.1"
 toml = "^0.10.2"
 python-dotenv = "^1.0.0"
+pydantic = "^1.10.7"
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.2.0"
+black = "^23.3.0"
+isort = "^5.12.0"
+flake8 = "^6.0.0"
+autoflake = "^2.1.1"
+types-beautifulsoup4 = "^4.12.0.4"
+pandas-stubs = "^2.0.1.230501"
+types-paramiko = "^3.0.0.9"
+
+[tool.isort]
+profile = "black"
+src_paths = ["."]
+combine_as_imports = true
+line_length = 88
+skip = [".git", ".mypy_cache", ".venv", "__pycache__", ".pytest_cache", "data", "images", "scripts"]
+
+[tool.black]
+profile = "black"
+src_paths = ["."]
+combine_as_imports = true
+line_length = 88
+force-exclude = '''
+    .git,
+    .mypy_cache,
+    .venv,
+    __pycache__,
+    .pytest_cache,
+    data,
+    images,
+    scripts,
+'''
+
+[tool.mypy]
+python_version = 3.11
+ignore_missing_imports = false
+disallow_untyped_defs = true
+allow_redefinition = true
+plugins = ''
+
+[tool.autoflake]
+remove-all-unused-imports = true
+remove-unused-variables = true
+in-place = true
+exclude='''
+    __init__.py
+    .git,
+    .mypy_cache,
+    .venv,
+    __pycache__,
+    .pytest_cache,
+    data,
+    images,
+    scripts,
+'''
 
 [build-system]
 requires = ["poetry-core"]
