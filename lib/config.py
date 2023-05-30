@@ -11,7 +11,7 @@ load_dotenv()
 
 class CLIENT(BaseConfig):
     # SSH host vars
-    CLIENT_NAME: str = environ.get("SITE_NAME", "Client Name")
+    CLIENT_NAME: str = environ.get("CLIENT_NAME", "Client Name")
     SITE_ROOT: str = environ.get("SITE_ROOT", "clientsite")
     SITE_TLD: str = environ.get("SITE_TLD", "com")
     SITE_IP: str = environ.get("SITE_IP", "127.0.0.1")
