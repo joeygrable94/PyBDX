@@ -5,7 +5,7 @@ import os
 import shutil
 from datetime import datetime
 from ftplib import FTP
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
@@ -58,14 +58,14 @@ class DataFile:
 
 
 class DataFileHandler:
-    data: Set = set()
+    data: List[Any] = []
     groups: List[Any] = []
 
     def __init__(self, key: Any, filetype: str = "") -> None:
         self.client_key = key
         self.filetype = filetype
         for file in os.listdir(f"{C.DATA_PATH}/{key}"):
-            if not file[0] in ["_", "."] and file.split(".")[-1] == filetype:
+            if file[0] not in ["_", "."] and file.split(".")[-1] == filetype:
                 self.add(file)
 
     def __repr__(self) -> str:
@@ -76,16 +76,14 @@ class DataFileHandler:
         is_source = file.split(".")[0].split("-")[-1] == self.client_key
         if not is_current and not is_source:
             dfile = DataFile(file)
-            self.data.add(dfile)
+            self.data.append(dfile)
 
     def sort(self) -> None:
         # sort data set by the data file data attr
-        self.data: Set[Any] = set(
-            sorted(
-                list(self.data),
-                key=lambda k: datetime.strptime(k.date, "%Y-%m-%d"),
-                reverse=True,
-            )
+        self.data: List[Any] = sorted(
+            self.data,
+            key=lambda k: datetime.strptime(k.date, "%Y-%m-%d"),
+            reverse=True,
         )
         # break files into groups by date
         group: List[Any] = []
@@ -125,7 +123,7 @@ class DataFileHandler:
             return None
 
 
-# ----------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------
 # PYTHON BDX DATA FEED WRANGLER
 class PyBDX:
     data_files: List[Any] = []
@@ -252,8 +250,8 @@ class PyBDX:
 
     def checkDataDirectories(self) -> bool:
         if not os.path.exists(self.client_data_path):
-            os.mkdir(self.client_data_path)
-        return True
+            os.makedirs(self.client_data_path)
+        return os.path.exists(self.client_data_path)
 
     def formatFileNames(self) -> None:
         # format the data file names and paths
@@ -393,6 +391,7 @@ class PyBDX:
                     file_parts = item["src"].split(".")
                     file_ext = file_parts[-1]
                     filename = f"{obj.wp_slug}-{slug}-{kind}.{file_ext}"
+                    save_to = ""
                     if kind == "floorplans":
                         save_to = "%s/%s" % (C.IMG_FLRP, filename)
                     elif kind == "elevations":

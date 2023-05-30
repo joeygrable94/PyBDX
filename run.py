@@ -8,21 +8,26 @@ BDX: PyBDX = PyBDX(
     client=CLIENT, download=True, analyze=True, convert=True, upload=False
 )
 
-# load data sets
+# Load current data
 cur_file = f"{BDX.xml_files.data[0].src}/{BDX.xml_files.data[0].file}"
-prev_file = f"{BDX.xml_files.data[0].src}/{BDX.xml_files.data[1].file}"
-
-# rebuild datasoup
 BDX_curr: BDXDataSoup | None = BDX.ReheatSoup(cur_file, CLIENT)
-BDX_prev: BDXDataSoup | None = BDX.ReheatSoup(prev_file, CLIENT)
-
-if not isinstance(BDX_curr, BDXDataSoup) or not isinstance(BDX_prev, BDXDataSoup):
+if not isinstance(BDX_curr, BDXDataSoup):
     print("Error: BDXDataSoup not found")
     exit()
-
 # print data source info
-print(len(BDX_prev.raw["plans"]), "plans found in", prev_file)
 print(len(BDX_curr.raw["plans"]), "plans found in", cur_file)
+
+# Load previous data if applicable
+BDX_prev: BDXDataSoup | None = None
+if len(BDX.xml_files.data) > 1:
+    prev_file = f"{BDX.xml_files.data[0].src}/{BDX.xml_files.data[1].file}"
+    BDX_prev = BDX.ReheatSoup(prev_file, CLIENT)
+    if not isinstance(BDX_prev, BDXDataSoup):
+        print("Error: Previous BDXDataSoup not found")
+        exit()
+    # print data source info
+    print(len(BDX_prev.raw["plans"]), "plans found in", prev_file)
+
 print(16 * "----")
 
 # exit()
@@ -42,20 +47,31 @@ for i, cur_plan in enumerate(BDX_curr.raw["plans"]):
         else None
     )
 
-    # previous plan, builder, and subdiv
-    prev_plan = (
-        BDX.findMatchingPlan(needle=cur_plan, haystack=BDX_prev.raw["plans"]) or None
-    )
-    pp_builder = (
-        BDX.findMatchingCPT(needle=prev_plan.builder, haystack=BDX_prev.raw["builders"])
-        if prev_plan and len(prev_plan.builder) > 0
-        else None
-    )
-    pp_subdiv = (
-        BDX.findMatchingCPT(needle=prev_plan.subdiv, haystack=BDX_prev.raw["subdivs"])
-        if prev_plan and len(prev_plan.subdiv) > 0
-        else None
-    )
+    prev_plan = None
+    if BDX_prev is not None:
+        # previous plan, builder, and subdiv
+        prev_plan = (
+            BDX.findMatchingPlan(
+                needle=cur_plan,
+                haystack=BDX_prev.raw["plans"]
+            ) or None
+        )
+        pp_builder = (
+            BDX.findMatchingCPT(
+                needle=prev_plan.builder,
+                haystack=BDX_prev.raw["builders"]
+            )
+            if prev_plan and len(prev_plan.builder) > 0
+            else None
+        )
+        pp_subdiv = (
+            BDX.findMatchingCPT(
+                needle=prev_plan.subdiv,
+                haystack=BDX_prev.raw["subdivs"]
+            )
+            if prev_plan and len(prev_plan.subdiv) > 0
+            else None
+        )
 
     # calculate any observed pricing changes, or get current plan price
     plan_price = BDX.calcPlanPricing(prev_plan, cur_plan)
@@ -65,7 +81,7 @@ for i, cur_plan in enumerate(BDX_curr.raw["plans"]):
         print(cp_builder.name)
     if cp_subdiv is not None:
         print(cp_subdiv.name)
-    print(cur_plan.name, "[ + ADDED ]") if prev_plan is None else print(cur_plan.name)
+    print(cur_plan.name)
     # print(cur_plan.wp_cpt_id)
     print(plan_price)
     print()

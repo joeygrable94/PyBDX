@@ -1,6 +1,6 @@
-import sys
+import os
 
-HERE = "/".join(sys.argv[0].split("/")[:-1])
+HERE = "/".join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-1])
 DATA_PATH = HERE + "/data"
 LIB = HERE + "/lib"
 IMG = HERE + "/images"
