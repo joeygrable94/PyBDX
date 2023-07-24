@@ -4,7 +4,7 @@ from os import environ
 from typing import Dict, List
 
 from dotenv import load_dotenv
-from pydantic import BaseConfig
+from pydantic import BaseConfig, validator
 
 load_dotenv()
 
@@ -23,15 +23,51 @@ class CLIENT(BaseConfig):
     DEFAULT_EMAIL: str = environ.get("DEFAULT_EMAIL", "email@company.com")
 
     # BDX vars
-    BDX_FEED_XML_FILE_ID: str | None = environ.get("BDX_FEED_XML_FILE_ID")
-    BDX_SERVERHOST: str | None = environ.get("BDX_SERVERHOST")
-    BDX_USERNAME: str | None = environ.get("BDX_USERNAME")
-    BDX_PASSWORD: str | None = environ.get("BDX_PASSWORD")
-    BDX_SERVER_PATH: str | None = "ftp://%s:%s@%s" % (
-        BDX_USERNAME,
-        BDX_PASSWORD,
-        BDX_SERVERHOST,
-    )
+    BDX_FEED_XML_FILE_ID: str = environ.get("BDX_FEED_XML_FILE_ID", "")
+    @validator("BDX_FEED_XML_FILE_ID")
+    def validate_bdx_feed_xml_file_id(cls, value):
+        if value is None or len(value) == 0:
+            raise ValueError("BDX_FEED_XML_FILE_ID is not set")
+        return value
+    
+    BDX_SERVERHOST: str = environ.get("BDX_SERVERHOST", "")
+    @validator("BDX_SERVERHOST")
+    def validate_bdx_serverhost(cls, value):
+        if value is None or len(value) == 0:
+            raise ValueError("BDX_SERVERHOST is not set")
+        return value
+
+    BDX_USERNAME: str = environ.get("BDX_USERNAME", "")
+    @validator("BDX_USERNAME")
+    def validate_bdx_username(cls, value):
+        if value is None or len(value) == 0:
+            raise ValueError("BDX_USERNAME is not set")
+        return value
+    
+    BDX_PASSWORD: str = environ.get("BDX_PASSWORD", "")
+    @validator("BDX_PASSWORD")
+    def validate_bdx_password(cls, value):
+        if value is None or len(value) == 0:
+            raise ValueError("BDX_PASSWORD is not set")
+        return value
+    
+    BDX_SERVER_PATH: str = environ.get("BDX_SERVER_PATH", "")
+    @validator("BDX_SERVER_PATH")
+    def validate_bdx_server_path(cls, values):
+        bdx_pass = "ftp://%s:%s@%s" % (
+            values.get('BDX_USERNAME'),
+            values.get('BDX_PASSWORD'),
+            values.get('BDX_SERVERHOST'),
+        )
+        return bdx_pass
+
+    # Report Automation
+    REPORT_AUTOMATION_WEBHOOK: str = environ.get("REPORT_AUTOMATION_WEBHOOK", "")
+    @validator("REPORT_AUTOMATION_WEBHOOK")
+    def validate_report_automation_webhook(cls, value):
+        if value is None or len(value) == 0:
+            raise ValueError("REPORT_AUTOMATION_WEBHOOK is not set")
+        return value
 
     # Filters
     NAME_FILTER_LIST: List[str] | List = (
