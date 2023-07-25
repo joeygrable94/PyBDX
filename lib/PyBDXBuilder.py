@@ -106,7 +106,7 @@ class DataFileHandler:
             for index in range(0, len(latest_file)):
                 latest_data[latest_file[index].type] = latest_file[index]
             return latest_data
-        except Exception as e:
+        except Exception:
             return None
 
     def previous(self, n: int = 1) -> Dict[str, Any] | None:
@@ -117,7 +117,7 @@ class DataFileHandler:
             for index in range(0, len(previous_file)):
                 previous_data[previous_file[index].type] = previous_file[index]
             return previous_data
-        except Exception as e:
+        except Exception:
             return None
 
 
