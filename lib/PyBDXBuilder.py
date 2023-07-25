@@ -107,7 +107,6 @@ class DataFileHandler:
                 latest_data[latest_file[index].type] = latest_file[index]
             return latest_data
         except Exception as e:
-            print(e)
             return None
 
     def previous(self, n: int = 1) -> Dict[str, Any] | None:
@@ -119,7 +118,6 @@ class DataFileHandler:
                 previous_data[previous_file[index].type] = previous_file[index]
             return previous_data
         except Exception as e:
-            print(e)
             return None
 
 
@@ -157,7 +155,6 @@ class PyBDX:
         # data wrangling (the magic ✨)
         if analyze:
             preload_data = BDXDataSoup(resource, client)
-            print(preload_data)
             # if converting data to update CSV import files
             if convert:
                 # iterate each json list to convert to csv
@@ -325,7 +322,7 @@ class PyBDX:
 
     def saveDataToAllImportCSV(
         self, data_key: str, json_data: Any, upload: bool
-    ) -> None:
+    ) -> bool:
         csv_file_today = "%s-%s-%s.csv" % (self.key, data_key, self.todaystr)
         csv_file_current = "%s-%s-current.csv" % (self.key, data_key)
         # save Today's json data to a csv file
@@ -338,7 +335,8 @@ class PyBDX:
         ):
             # upload the csv file to the remote server for web use
             if self._uploadFileToServer(csv_file_today):
-                print("=> PyBDX Data successfully uploaded to server.")
+                return True
+        return False
 
     def _saveJSONtoCSV(self, data: Any, file_name: str) -> bool:
         # open the file to save data in
