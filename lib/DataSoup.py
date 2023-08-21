@@ -24,11 +24,14 @@ class Node:
         """find tag name and return its contents"""
         tag_data = data.find(tag_name)
         if tag_data is not None:
-            value = tag_data.text.strip()
+            value = tag_data.text.strip() if tag_data.text else ""
             return value.replace("\n", "<br>")
 
     def getDataBool(self, data: Any, tag_name: Any) -> Any:
-        return 1 if data.find(tag_name).text.strip() == 0 else 0
+        if data.find(tag_name) and data.find(tag_name).text == 0:
+            return 1 
+        else:
+            return 0
 
 
 # ----------------------------------------------------------------------------------------
@@ -166,7 +169,7 @@ class Subdivision(Node):
         else:
             self.geotag = C.DEFUALT_GEOTAG
         # set the Subdiv address
-        if type(street) is str:
+        if isinstance(street, str):
             self.address = "%s, %s %s, %s" % (street, city, state, zipcode)
         else:
             self.address = "%s, %s %s, %s" % (county, city, state, zipcode)
@@ -205,14 +208,14 @@ class Subdivision(Node):
                 self.office_address = "%s, %s %s, %s" % (county, city, state, zipcode)
             # set sales office hours
             if sales_hours:
-                self.office_hours = sales_hours.text.strip().replace(";", ". ")
+                self.office_hours = sales_hours.text.strip().replace(";", ". ") if sales_hours.text else ""
             else:
                 self.office_hours = "Contact us for our location hours."
             # format agent list
             tmp_agents = []
             if sales_agents:
                 for agent in sales_agents:
-                    tmp_agent = agent.text.strip().split(" & ")
+                    tmp_agent = agent.text.strip().split(" & ") if agent.text else []
                     for name in tmp_agent:
                         tmp_agents.append(name)
             else:
@@ -247,17 +250,17 @@ class Subdivision(Node):
                 data_obj["schools"] = []
                 if len(elementary) > 0:
                     for elm in elementary:
-                        school_name = {"school_name": elm.text.strip()}
+                        school_name = {"school_name": elm.text.strip() if elm.text else ""}
                         if school_name not in data_obj["schools"]:
                             data_obj["schools"].append(school_name)
                 if len(middle) > 0:
                     for msch in middle:
-                        school_name = {"school_name": msch.text.strip()}
+                        school_name = {"school_name": msch.text.strip() if msch.text else ""}
                         if school_name not in data_obj["schools"]:
                             data_obj["schools"].append(school_name)
                 if len(high) > 0:
                     for hsch in middle:
-                        school_name = {"school_name": hsch.text.strip()}
+                        school_name = {"school_name": hsch.text.strip() if hsch.text else ""}
                         if school_name not in data_obj["schools"]:
                             data_obj["schools"].append(school_name)
                 # add this school disctrict to the list
@@ -304,12 +307,19 @@ class Plan(Node):
         # relationships
         self.builder: List = []
         self.subdiv: List = []
+        p_number = ''
+        if data.find("PlanNumber") and data.find("PlanNumber").text:
+            p_number = data.find("PlanNumber").text.strip(),
+        p_name = ''
+        if data.find("PlanName") and data.find("PlanName").text:
+            p_name_tup = data.find("PlanName").text
+            p_name = p_name_tup.strip()
         # data attrs
         Node.__init__(
             self,
             data.attrs["PlanID"],
-            data.find("PlanNumber").text.strip(),
-            data.find("PlanName").text.strip(),
+            p_number,
+            p_name,
         )
         self.name = UT.filterName(filterList, self.name)
         self.slug = UT.slugify("%s %s" % (self.id, self.name))
@@ -358,8 +368,7 @@ class Plan(Node):
         areas = data.findChildren("LivingArea")
         for space in areas:
             s_type = space.attrs["Type"] if space.attrs.get("Type") else ""
-            space.name
-            s_val = space.text
+            s_val = space.text if space.text else 0
             all_spaces[s_type] = (
                 all_spaces[s_type] + 1 if all_spaces.get(s_type) else int(s_val)
             )
@@ -371,8 +380,7 @@ class Plan(Node):
         amenities = data.findChildren("PlanAmenity")
         for feature in amenities:
             a_type = feature.attrs["Type"] if feature.attrs.get("Type") else ""
-            feature.name
-            a_val = feature.text
+            a_val = feature.text if feature.text else 0
             all_feat[a_type] = (
                 all_feat[a_type] + 1 if all_feat.get(a_type) else int(a_val)
             )

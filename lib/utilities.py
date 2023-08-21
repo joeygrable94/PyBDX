@@ -87,11 +87,12 @@ def formatImageData(key: str, slug: str, data_list: list) -> List[Dict] | List:
         img_num += 1
         title = item.attrs["Title"] if item.attrs.get("Title") else ""
         cap = item.attrs["Caption"] if item.attrs.get("Caption") else ""
+        src = item.text if item.text else ""
         if "" != title or "" != cap:
             output.append(
                 {
                     "type": key,
-                    "src": item.text,
+                    "src": src,
                     "slug": "%s-%s" % (slug, img_num),
                     "title": title,
                     "caption": cap,

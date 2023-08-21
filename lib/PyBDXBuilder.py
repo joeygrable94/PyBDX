@@ -155,6 +155,7 @@ class PyBDX:
         # data wrangling (the magic ✨)
         if analyze:
             preload_data = BDXDataSoup(resource, client)
+            # exit()
             # if converting data to update CSV import files
             if convert:
                 # iterate each json list to convert to csv
