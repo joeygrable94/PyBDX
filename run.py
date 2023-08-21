@@ -6,11 +6,11 @@ from knockknock import slack_sender
 # load Client from environment
 CLIENT = get_client()
 
-@slack_sender(
-    webhook_url=CLIENT.REPORT_AUTOMATION_WEBHOOK,
-    channel='report-automation',
-    user_mentions=['joey@getcommunity.com']
-)
+# @slack_sender(
+#     webhook_url=CLIENT.REPORT_AUTOMATION_WEBHOOK,
+#     channel='report-automation',
+#     user_mentions=['joey@getcommunity.com']
+# )
 def fetch_bdx_pricing():
     output_message = []
     try:
@@ -18,6 +18,8 @@ def fetch_bdx_pricing():
         BDX: PyBDX = PyBDX(
             client=CLIENT, download=True, analyze=True, convert=True, upload=False
         )
+        # print(BDX)
+        # exit()
         # Load current data
         cur_file = f"{BDX.xml_files.data[0].src}/{BDX.xml_files.data[0].file}"
         BDX_curr: BDXDataSoup | None = BDX.ReheatSoup(cur_file, CLIENT)
@@ -99,10 +101,10 @@ def fetch_bdx_pricing():
             output_message.append('')
     except (Exception) as e:
         output_message.append('ERROR:')
-        output_message.append(e)
+        print(e)
     finally:
         output_str = '\n'.join(output_message)
         return output_str
 
 if __name__ == '__main__':
-    fetch_bdx_pricing()
+    print( fetch_bdx_pricing() )
