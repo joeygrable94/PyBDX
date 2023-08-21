@@ -6,11 +6,11 @@ from knockknock import slack_sender
 # load Client from environment
 CLIENT = get_client()
 
-# @slack_sender(
-#     webhook_url=CLIENT.REPORT_AUTOMATION_WEBHOOK,
-#     channel='report-automation',
-#     user_mentions=['joey@getcommunity.com']
-# )
+@slack_sender(
+    webhook_url=CLIENT.REPORT_AUTOMATION_WEBHOOK,
+    channel='report-automation',
+    user_mentions=['joey@getcommunity.com']
+)
 def fetch_bdx_pricing():
     output_message = []
     try:
