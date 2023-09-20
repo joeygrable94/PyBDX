@@ -90,7 +90,7 @@ class DataFileHandler:
         last_date = None
         date_changed = False
         for item in self.data:
-            if type(last_date) is str:
+            if isinstance(last_date, str):
                 date_changed = (not last_date == item.date) if True else False
             last_date = item.date
             if date_changed:
@@ -207,7 +207,7 @@ class PyBDX:
 
     @staticmethod
     def findMatchingCPT(needle: Any, haystack: List = []) -> Any:
-        if type(needle) is list and len(needle) > 0:
+        if isinstance(needle, list) and len(needle) > 0:
             needle = needle[0]
         for check in haystack:
             if needle == check.wp_cpt_id:
