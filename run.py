@@ -11,7 +11,7 @@ CLIENT = get_client()
     channel='report-automation',
     user_mentions=['joey@getcommunity.com']
 )
-def fetch_bdx_pricing():
+def fetch_bdx_pricing() -> str:
     output_message = []
     try:
         # run PyBDX
