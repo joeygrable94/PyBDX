@@ -166,7 +166,7 @@ class PyBDX:
                         upload=upload,
                     )
         # compiling csv data
-        # self.csv_files = self.getClientDataCSV()
+        self.csv_files = self.getClientDataCSV()
         self.xml_files = self.getClientDataXML()
 
     @staticmethod

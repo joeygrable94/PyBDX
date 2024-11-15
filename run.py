@@ -1,15 +1,17 @@
+from knockknock import slack_sender
+
 from lib.config import get_client
 from lib.DataSoup import BDXDataSoup
 from lib.PyBDXBuilder import PyBDX
-from knockknock import slack_sender
 
 # load Client from environment
 CLIENT = get_client()
 
+
 @slack_sender(
     webhook_url=CLIENT.REPORT_AUTOMATION_WEBHOOK,
-    channel='report-automation',
-    user_mentions=['joey@getcommunity.com']
+    channel="report-automation",
+    user_mentions=["joey@getcommunity.com"],
 )
 def fetch_bdx_pricing() -> str:
     output_message = []
@@ -24,11 +26,12 @@ def fetch_bdx_pricing() -> str:
         cur_file = f"{BDX.xml_files.data[0].src}/{BDX.xml_files.data[0].file}"
         BDX_curr: BDXDataSoup | None = BDX.ReheatSoup(cur_file, CLIENT)
         if not isinstance(BDX_curr, BDXDataSoup):
-            raise Exception('BDXDataSoup not found')
-        
+            raise Exception("BDXDataSoup not found")
+
         # append data source info
         cur_data_source = "Current: %d plans found in %s" % (
-            len(BDX_curr.raw["plans"]), cur_file
+            len(BDX_curr.raw["plans"]),
+            cur_file,
         )
         output_message.append(cur_data_source)
 
@@ -38,9 +41,10 @@ def fetch_bdx_pricing() -> str:
             prev_file = f"{BDX.xml_files.data[0].src}/{BDX.xml_files.data[1].file}"
             BDX_prev = BDX.ReheatSoup(prev_file, CLIENT)
             if not isinstance(BDX_prev, BDXDataSoup):
-                raise Exception('Previous BDXDataSoup not found')
+                raise Exception("Previous BDXDataSoup not found")
             prev_data_source = "Previous: %d plans found in %s" % (
-                len(BDX_prev.raw["plans"]), prev_file
+                len(BDX_prev.raw["plans"]),
+                prev_file,
             )
             output_message.append(prev_data_source)
 
@@ -57,7 +61,9 @@ def fetch_bdx_pricing() -> str:
                 else None
             )
             cp_subdiv = (
-                BDX.findMatchingCPT(needle=cur_plan.subdiv[0], haystack=BDX_curr.raw["subdivs"])
+                BDX.findMatchingCPT(
+                    needle=cur_plan.subdiv[0], haystack=BDX_curr.raw["subdivs"]
+                )
                 if len(cur_plan.subdiv) > 0
                 else None
             )
@@ -67,22 +73,20 @@ def fetch_bdx_pricing() -> str:
                 # previous plan, builder, and subdiv
                 prev_plan = (
                     BDX.findMatchingPlan(
-                        needle=cur_plan,
-                        haystack=BDX_prev.raw["plans"]
-                    ) or None
+                        needle=cur_plan, haystack=BDX_prev.raw["plans"]
+                    )
+                    or None
                 )
                 pp_builder = (
                     BDX.findMatchingCPT(
-                        needle=prev_plan.builder,
-                        haystack=BDX_prev.raw["builders"]
+                        needle=prev_plan.builder, haystack=BDX_prev.raw["builders"]
                     )
                     if prev_plan and len(prev_plan.builder) > 0
                     else None
                 )
                 pp_subdiv = (
                     BDX.findMatchingCPT(
-                        needle=prev_plan.subdiv,
-                        haystack=BDX_prev.raw["subdivs"]
+                        needle=prev_plan.subdiv, haystack=BDX_prev.raw["subdivs"]
                     )
                     if prev_plan and len(prev_plan.subdiv) > 0
                     else None
@@ -98,13 +102,14 @@ def fetch_bdx_pricing() -> str:
                 output_message.append(cp_subdiv.name)
             output_message.append(cur_plan.name)
             output_message.append(plan_price)
-            output_message.append('')
-    except (Exception) as e:
-        output_message.append('ERROR:')
+            output_message.append("")
+    except Exception as e:
+        output_message.append("ERROR:")
         print(e)
     finally:
-        output_str = '\n'.join(output_message)
+        output_str = "\n".join(output_message)
         return output_str
 
-if __name__ == '__main__':
-    print( fetch_bdx_pricing() )
+
+if __name__ == "__main__":
+    print(fetch_bdx_pricing())

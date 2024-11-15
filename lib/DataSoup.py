@@ -4,7 +4,8 @@ from typing import Any, Dict, List
 
 from bs4 import BeautifulSoup
 
-from lib import constants as C, utilities as UT
+from lib import constants as C
+from lib import utilities as UT
 
 
 # ----------------------------------------------------------------------------------------
@@ -29,7 +30,7 @@ class Node:
 
     def getDataBool(self, data: Any, tag_name: Any) -> Any:
         if data.find(tag_name) and data.find(tag_name).text == 0:
-            return 1 
+            return 1
         else:
             return 0
 
@@ -208,7 +209,11 @@ class Subdivision(Node):
                 self.office_address = "%s, %s %s, %s" % (county, city, state, zipcode)
             # set sales office hours
             if sales_hours:
-                self.office_hours = sales_hours.text.strip().replace(";", ". ") if sales_hours.text else ""
+                self.office_hours = (
+                    sales_hours.text.strip().replace(";", ". ")
+                    if sales_hours.text
+                    else ""
+                )
             else:
                 self.office_hours = "Contact us for our location hours."
             # format agent list
@@ -240,7 +245,7 @@ class Subdivision(Node):
                 data_obj = {}
                 district = (
                     school.find("DistrictName").text.strip()
-                    if not school.find("DistrictName") is None
+                    if school.find("DistrictName") is not None
                     else ""
                 )
                 elementary = school.findChildren("Elementary")
@@ -250,17 +255,23 @@ class Subdivision(Node):
                 data_obj["schools"] = []
                 if len(elementary) > 0:
                     for elm in elementary:
-                        school_name = {"school_name": elm.text.strip() if elm.text else ""}
+                        school_name = {
+                            "school_name": elm.text.strip() if elm.text else ""
+                        }
                         if school_name not in data_obj["schools"]:
                             data_obj["schools"].append(school_name)
                 if len(middle) > 0:
                     for msch in middle:
-                        school_name = {"school_name": msch.text.strip() if msch.text else ""}
+                        school_name = {
+                            "school_name": msch.text.strip() if msch.text else ""
+                        }
                         if school_name not in data_obj["schools"]:
                             data_obj["schools"].append(school_name)
                 if len(high) > 0:
                     for hsch in middle:
-                        school_name = {"school_name": hsch.text.strip() if hsch.text else ""}
+                        school_name = {
+                            "school_name": hsch.text.strip() if hsch.text else ""
+                        }
                         if school_name not in data_obj["schools"]:
                             data_obj["schools"].append(school_name)
                 # add this school disctrict to the list
@@ -307,10 +318,10 @@ class Plan(Node):
         # relationships
         self.builder: List = []
         self.subdiv: List = []
-        p_number = ''
+        p_number = ""
         if data.find("PlanNumber") and data.find("PlanNumber").text:
-            p_number = data.find("PlanNumber").text.strip(),
-        p_name = ''
+            p_number = (data.find("PlanNumber").text.strip(),)
+        p_name = ""
         if data.find("PlanName") and data.find("PlanName").text:
             p_name_tup = data.find("PlanName").text
             p_name = p_name_tup.strip()
